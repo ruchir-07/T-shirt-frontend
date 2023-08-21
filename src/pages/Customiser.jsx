@@ -11,7 +11,35 @@ import { fadeAnimation, slideAnimation } from '../config/motion'
 import { AIPicker, ColorPicker, CustomButton, FilePicker, Tab } from '../components'
 
 const Customiser = () => {
-  const snap = useSnapshot(state)
+  const snap = useSnapshot(state);
+
+  const [file, setFile] = useState('')
+
+  const [prompt, setPrompt] = useState('')
+
+  const [generatingImg, setGeneratingImg] = useState(false)
+  const [activeEditorTab, setActiveEditorTab] = useState("")
+  const [activeFilterTab, setActiveFilterTab] = useState({
+    logoShirt: true,
+    stylishShirt: false,
+  })
+
+
+  //show tab content dependong on active tab
+  const genrateTabContent = () => {
+
+    console.log("Han mai chala")
+      switch(activeEditorTab){
+        case "colorpicker":
+          return <ColorPicker />
+        case "filepicker":
+          return <FilePicker />
+        case "aipicker":
+          return <AIPicker />
+        default:
+          return null;
+      }
+  }
 
   return (
     <AnimatePresence>
@@ -28,9 +56,11 @@ const Customiser = () => {
                   <Tab
                     key={tab.name}
                     tab={tab}
-                    handleClick={() => { }}
+                    handleClick={() => { console.log("hello"); setActiveEditorTab(tab.name)} }
                   />
-                ))}
+      ))}
+
+                {genrateTabContent()}
               </div>
             </div>
           </motion.div>
@@ -55,7 +85,7 @@ const Customiser = () => {
               <Tab
                 key={tab.name}
                 tab={tab}
-                isFilterTab
+                isFilterTab=""
                 isActiveTab=""
                 handleClick={() => {}}
               />

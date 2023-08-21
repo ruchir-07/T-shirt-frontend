@@ -3,15 +3,18 @@ import { useFrame } from '@react-three/fiber'
 import { easing } from 'maath'
 import { useSnapshot } from 'valtio'
 import state from '../store'
+import PropTypes from 'prop-types';
+
+
 
 const CameraRig = ({ children }) => {
   const group = useRef();
   const snap = useSnapshot(state);
-
+  
   useFrame((state, delta) => {
     const isbreakpoint = window.innerWidth <= 1260
     const isMobile = window.innerWidth <= 600
-
+    
     //set the initial postion of the model
     let targetPosition = [-0.4,0,2];
     if(snap.intro){
@@ -24,7 +27,7 @@ const CameraRig = ({ children }) => {
 
     // set camera postion of model
     easing.damp3(state.camera.position, targetPosition, 0.25, delta)
-
+    
     // set the model rotation easily
     easing.dampE(
       group.current.rotation,
@@ -37,5 +40,11 @@ const CameraRig = ({ children }) => {
 
   return <group ref={group}>{children}</group>
 }
+
+CameraRig.propTypes = {
+  // someProp: PropTypes.number.isRequired,
+  // onTap: PropTypes.func.isRequired,
+  children: PropTypes.node.isRequired,
+};
 
 export default CameraRig
