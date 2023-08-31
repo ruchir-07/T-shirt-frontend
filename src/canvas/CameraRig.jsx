@@ -44,7 +44,7 @@ const CameraRig = ({ children }) => {
 CameraRig.propTypes = {
   // someProp: PropTypes.number.isRequired,
   // onTap: PropTypes.func.isRequired,
-  children: PropTypes.node.isRequired,
+  children: PropTypes.any,
 };
 
 export default CameraRig

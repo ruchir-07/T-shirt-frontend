@@ -28,17 +28,96 @@ const Customiser = () => {
   //show tab content dependong on active tab
   const genrateTabContent = () => {
 
-    console.log("Han mai chala")
       switch(activeEditorTab){
         case "colorpicker":
           return <ColorPicker />
         case "filepicker":
-          return <FilePicker />
+          return <FilePicker
+            file={file}
+            setFile={setFile}
+            readFile={readFile}
+          />
         case "aipicker":
-          return <AIPicker />
+          return <AIPicker
+            prompt={prompt}
+            setPrompt={setPrompt}
+            generatingImg={generatingImg}
+            handleSubmit={handleSubmit}
+          />
         default:
           return null;
       }
+  }
+
+  const handleSubmit = async (type) => {
+    if(!prompt) return alert("Please enter a prompt")
+
+    try {
+      // call our backend to generate an AI image
+      setGeneratingImg(true);
+
+      const response = await fetch('http://localhost:8080/api/v1/dalle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt
+        })
+      })
+
+      const data = await response.json();
+
+      handleDecals(type, `data:image/png;base64,${data.photo}`)
+    } catch (error) {
+      alert(error)
+    } finally  {
+      setGeneratingImg(false)
+      setActiveEditorTab("")
+    }
+  }
+
+  const handleDecals = (type, result) => {
+    const decalType = DecalTypes[type];
+
+    state[decalType.stateProperty] = result;
+
+    if(!activeFilterTab[decalType.filterTab]){
+      handleActiveFilterTab(decalType.filterTab)
+    }
+  }
+
+  const handleActiveFilterTab = (tabName) => {
+      switch(tabName){
+        case 'logoShirt':
+          state.isLogoTexture = !activeFilterTab[tabName];
+          break;
+        case 'stylishShirt':
+          state.isFullTexture = !activeFilterTab[tabName];
+          break;
+          default :
+            state.isFullTexture = false;
+            state.isLogoTexture = true;
+            break;
+      }
+
+      // after setting the state, activeFilterTab is updated
+      
+      setActiveFilterTab((prevState) => {
+        return {
+          ...prevState,
+          [tabName]:!prevState[[tabName]]
+        };
+      })
+  }
+
+  const readFile = (type) => {
+    reader(file)
+      .then((result) => {
+        handleDecals(type, result);
+        // generateImage();
+        setActiveEditorTab("");
+      })
   }
 
   return (
@@ -56,7 +135,7 @@ const Customiser = () => {
                   <Tab
                     key={tab.name}
                     tab={tab}
-                    handleClick={() => { console.log("hello"); setActiveEditorTab(tab.name)} }
+                    handleClick={() => { setActiveEditorTab(tab.name)} }
                   />
       ))}
 
@@ -85,9 +164,9 @@ const Customiser = () => {
               <Tab
                 key={tab.name}
                 tab={tab}
-                isFilterTab=""
-                isActiveTab=""
-                handleClick={() => {}}
+                isFilterTab
+                isActiveTab={activeFilterTab[tab.name]}
+                handleClick={() => handleActiveFilterTab(tab.name) }
               />
             ))}
           </motion.div>
